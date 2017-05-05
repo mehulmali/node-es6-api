@@ -1,51 +1,50 @@
-import User from '../models/user';
+import Task from '../models/task';
 
 function load(req, res, next, id) {
-    User.findById(id)
+    Task.findById(id)
         .exec()
-        .then((user) => {
-            req.dbUser = user;
+        .then((task) => {
+            req.dbTask = task;
             return next();
         }, (e) => next(e));
 }
 
 function get(req, res) {
-    return res.json(req.dbUser);
+    return res.json(req.dbTask);
 }
 
 function create(req, res, next) {
-    User.create({
-        username: req.body.username,
-        password: req.body.password
+    Task.create({
+        user: req.body.user,
+        description: req.body.description
     })
-        .then((savedUser) => {
-            return res.json(savedUser);
+        .then((savedTask) => {
+            return res.json(savedTask);
         }, (e) => next(e));
 }
 
 function update(req, res, next) {
-    const user = req.dbUser;
-    Object.assign(user, req.body);
+    const task = req.dbTask;
+    Object.assign(task, req.body);
 
-    user.save()
-        .then((savedUser) => res.sendStatus(204),
+    task.save()
+        .then(() => res.sendStatus(204),
             (e) => next(e));
 }
 
 function list(req, res, next) {
-    console.log('working')
     const {limit = 50, skip = 0} = req.query;
-    User.find()
+    Task.find()
         .skip(skip)
         .limit(limit)
         .exec()
-        .then((users) => res.json(users),
+        .then((tasks) => res.json(tasks),
             (e) => next(e));
 }
 
 function remove(req, res, next) {
-    const user = req.dbUser;
-    user.remove()
+    const task = req.dbTask;
+    task.remove()
         .then(() => res.sendStatus(204),
             (e) => next(e));
 }
